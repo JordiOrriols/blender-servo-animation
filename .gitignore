@@ -5,3 +5,4 @@ __pycache__
 *.blend1
 tests/results.txt
 *.zip
+.DS_STORE

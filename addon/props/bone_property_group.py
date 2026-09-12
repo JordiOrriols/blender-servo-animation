@@ -35,7 +35,7 @@ class BonePropertyGroup(PropertyGroup):
         name="Min Position",
         default=150,
         min=0,
-        max=10000,
+        max=100000,
         description="The minimum position value before the servo physically stops moving",
         update=update_position_min
     )
@@ -43,7 +43,7 @@ class BonePropertyGroup(PropertyGroup):
         name="Max Position",
         default=600,
         min=0,
-        max=10000,
+        max=100000,
         description="The maximum position value before the servo physically stops moving",
         update=update_position_max
     )
