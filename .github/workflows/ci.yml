@@ -44,9 +44,9 @@ jobs:
       fail-fast: false
       matrix:
         version:
-        - "4.2.0"
-        - "4.5.0"
-        - "5.0.0"
+        - "4.2.0" # Minimum supported version
+        - "4.5.0" # Final/LTS 4.x line
+        - "5.2.0" # Current 5.x LTS
     runs-on: ubuntu-latest
     container: linuxserver/blender:${{ matrix.version }}
     steps:
