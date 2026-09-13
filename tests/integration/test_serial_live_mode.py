@@ -10,6 +10,7 @@ import bpy
 COMMAND_LENGTH = 5
 COMMAND_START = b"<"
 COMMAND_END = b">"
+HIGH_BAUD_RATE = 57600 if sys.platform == "darwin" else 192500
 
 
 class TestSerialLiveMode(unittest.TestCase):
@@ -64,12 +65,9 @@ class TestSerialLiveMode(unittest.TestCase):
     @parameterized.expand([
         ("115200 baud rate", 115200, 1, 90, 0),
         ("19200 baud rate", 19200, 33, 45, 1),
-        ("192500 baud rate", 192500, 66, 135, 12),
+        (f"{HIGH_BAUD_RATE} baud rate", HIGH_BAUD_RATE, 66, 135, 12),
     ])
     def test_start_stop(self, _name, baud_rate, frame, position, servo_id):
-        if sys.platform == "darwin" and baud_rate == 192500:
-            self.skipTest("macOS pseudo-terminals don't support arbitrary baud rates")
-
         bpy.context.scene.frame_set(frame)
         bpy.context.object.data.bones['Bone'].servo_settings.servo_id = servo_id
 
