@@ -1,6 +1,7 @@
 import unittest
 import os
 import select
+import termios
 
 from parameterized import parameterized
 import serial
@@ -17,7 +18,7 @@ def get_high_baud_rate():
 
     try:
         connection = serial.Serial(os.ttyname(sender), 192500)
-    except (OSError, serial.SerialException, ValueError):
+    except (OSError, termios.error, serial.SerialException, ValueError):
         return 57600
     else:
         connection.close()
