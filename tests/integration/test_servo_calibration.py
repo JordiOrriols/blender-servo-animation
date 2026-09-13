@@ -1,5 +1,6 @@
 import unittest
 import os
+import select
 
 from parameterized import parameterized
 
@@ -29,14 +30,12 @@ class TestServoCalibration(unittest.TestCase):
     def read_bytes(self):
         read_bytes = []
 
-        try:
-            os.close(self.sender)
-            with os.fdopen(self.receiver, "rb") as reader:
-                while len(reader.peek()) > 0:
-                    byte = reader.read(1)
-                    read_bytes.append(byte)
-        except OSError:
-            pass
+        while select.select([self.receiver], [], [], 0.1)[0]:
+            chunk = os.read(self.receiver, 4096)
+            if not chunk:
+                break
+
+            read_bytes.extend(bytes([value]) for value in chunk)
 
         return read_bytes
 

@@ -7,6 +7,7 @@ TESTSDIR="$ROOT_DIR/tests"
 
 blender \
     -noaudio \
+    --factory-startup \
     --background \
     --python-use-system-env \
     --python-exit-code 1 \

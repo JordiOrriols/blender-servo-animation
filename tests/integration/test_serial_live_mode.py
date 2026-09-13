@@ -1,5 +1,7 @@
 import unittest
 import os
+import select
+import sys
 
 from parameterized import parameterized
 
@@ -32,14 +34,12 @@ class TestSerialLiveMode(unittest.TestCase):
     def read_bytes(self):
         read_bytes = []
 
-        try:
-            os.close(self.sender)
-            with os.fdopen(self.receiver, "rb") as reader:
-                while len(reader.peek()) > 0:
-                    byte = reader.read(1)
-                    read_bytes.append(byte)
-        except OSError:
-            pass
+        while select.select([self.receiver], [], [], 0.1)[0]:
+            chunk = os.read(self.receiver, 4096)
+            if not chunk:
+                break
+
+            read_bytes.extend(bytes([value]) for value in chunk)
 
         return read_bytes
 
@@ -67,6 +67,9 @@ class TestSerialLiveMode(unittest.TestCase):
         ("192500 baud rate", 192500, 66, 135, 12),
     ])
     def test_start_stop(self, _name, baud_rate, frame, position, servo_id):
+        if sys.platform == "darwin" and baud_rate == 192500:
+            self.skipTest("macOS pseudo-terminals don't support arbitrary baud rates")
+
         bpy.context.scene.frame_set(frame)
         bpy.context.object.data.bones['Bone'].servo_settings.servo_id = servo_id
 

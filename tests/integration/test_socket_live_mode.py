@@ -15,6 +15,7 @@ COMMAND_END = b">"
 class TestSocketLiveMode(unittest.TestCase):
     def setUp(self):
         self.received_data = []
+        self.server_stopped = False
         self.server = serve(self.handler, "localhost", 0)
         self.host, self.port = self.server.socket.getsockname()
         self.server_thread = threading.Thread(target=self.run_server)
@@ -34,13 +35,20 @@ class TestSocketLiveMode(unittest.TestCase):
         self.server.serve_forever()
 
     def stop_server(self):
+        if self.server_stopped:
+            return
+
+        self.server_stopped = True
         self.server.shutdown()
-        self.server_thread.join()
+        self.server_thread.join(timeout=5)
+        self.assertFalse(
+            self.server_thread.is_alive(),
+            "WebSocket server failed to stop"
+        )
 
     def handler(self, socket):
         for message in socket:
             if message == "stop":
-                self.stop_server()
                 break
 
             for integer in message:
@@ -53,8 +61,7 @@ class TestSocketLiveMode(unittest.TestCase):
         con.send("stop")
         con.close()
 
-        while self.server_thread.is_alive():
-            pass
+        self.stop_server()
 
         return self.received_data
 
