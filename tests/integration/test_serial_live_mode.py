@@ -1,16 +1,33 @@
 import unittest
 import os
 import select
-import sys
 
 from parameterized import parameterized
+import serial
 
 import bpy
 
 COMMAND_LENGTH = 5
 COMMAND_START = b"<"
 COMMAND_END = b">"
-HIGH_BAUD_RATE = 57600 if sys.platform == "darwin" else 192500
+
+
+def get_high_baud_rate():
+    receiver, sender = os.openpty()
+
+    try:
+        connection = serial.Serial(os.ttyname(sender), 192500)
+    except (OSError, serial.SerialException, ValueError):
+        return 57600
+    else:
+        connection.close()
+        return 192500
+    finally:
+        os.close(sender)
+        os.close(receiver)
+
+
+HIGH_BAUD_RATE = get_high_baud_rate()
 
 
 class TestSerialLiveMode(unittest.TestCase):
